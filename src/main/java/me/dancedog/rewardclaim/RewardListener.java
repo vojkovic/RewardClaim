@@ -26,7 +26,7 @@ import org.jsoup.nodes.Document;
 public class RewardListener {
 
   private static final Pattern REWARD_MESSAGE_PATTERN = Pattern.compile(
-      "§r§6Click the link to visit our website and claim your reward: §r§bhttp://rewards\\.hypixel\\.net/claim-reward/([A-Za-z0-9]+)§r");
+      "§r§6Click the link to visit our website and claim your reward: §r§bhttps://rewards\\.hypixel\\.net/claim-reward/([A-Za-z0-9]+)§r");
 
   private long lastRewardOpenedMs = new Date().getTime();
   private final AtomicReference<RewardSession> sessionData = new AtomicReference<>();

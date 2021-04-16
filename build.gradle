@@ -11,18 +11,17 @@ buildscript {
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-compileJava {
-    sourceCompatibility = '8'
-    targetCompatibility = '1.8'
-}
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = 'RewardClaim'
-version = '0.1.1'
+version = '0.1.2'
 group = 'me.dancedog.rewardclaim'
+
 minecraft {
-    version = '1.8.9-11.15.1.1722'
+    version = "1.8.9-11.15.1.1722"
     runDir = 'run'
-    mappings = 'stable_20'
+    mappings = 'stable_22'
 }
 
 configurations {
@@ -30,14 +29,17 @@ configurations {
     shade.transitive = false
     compile.extendsFrom(shade)
 }
+
 repositories {
     mavenCentral()
 }
+
 dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
     shade 'org.jsoup:jsoup:1.13.1'
 }
+
 jar {
     from configurations.shade.collect {
         it.isDirectory() ? it : zipTree(it)
