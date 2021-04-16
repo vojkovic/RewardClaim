@@ -12,19 +12,19 @@ import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import org.lwjgl.input.Mouse;
 
 /**
  * Created by DanceDog / Ben on 3/22/20 @ 10:43 AM
  */
 public class GuiScreenRewardSession extends GuiScreen {
 
-  private State guiState = State.INITIAL;
+  private State guiState = State.CHOOSING;
   private int chosenCard = -1;
   private RewardSession session;
 
   private GuiRewardCard[] cards = new GuiRewardCard[3];
   private GuiButton closeButton;
-  private GuiButton activationButton; // used to get the cursor out of center
 
   public GuiScreenRewardSession(RewardSession session) {
     this.session = session;
@@ -35,6 +35,9 @@ public class GuiScreenRewardSession extends GuiScreen {
 
   @Override
   public void initGui() {
+    // Move cursor out of center card
+    Mouse.setCursorPosition(mc.displayWidth / 2, 25);
+
     // Determine card position and spacing
     int middleCardX = width / 2 - (GuiRewardCard.CARD_WIDTH / 2);
     int posY = height / 2 - (GuiRewardCard.CARD_HEIGHT / 2);
@@ -68,17 +71,8 @@ public class GuiScreenRewardSession extends GuiScreen {
         squareButtonSize,
         squareButtonSize,
         "X");
-    this.activationButton = new GuiButton(
-        1,
-        this.width / 2 - 100,
-        this.height - 25,
-        200,
-        20,
-        "Ready?"
-    );
 
     this.buttonList.add(closeButton);
-    this.buttonList.add(activationButton);
 
     refreshState();
   }
@@ -97,10 +91,8 @@ public class GuiScreenRewardSession extends GuiScreen {
         0);
 
     // Determine tooltip states
-    if (guiState != State.INITIAL) {
-      for (GuiRewardCard rewardCard : cards) {
-        rewardCard.setShowTooltip(rewardCard.canShowTooltip(mouseX, mouseY));
-      }
+    for (GuiRewardCard rewardCard : cards) {
+      rewardCard.setShowTooltip(rewardCard.canShowTooltip(mouseX, mouseY));
     }
 
     // Draw all 3 cards
@@ -163,9 +155,6 @@ public class GuiScreenRewardSession extends GuiScreen {
     if (button == closeButton) {
       this.mc.setIngameFocus();
 
-    } else if (button == activationButton) {
-      this.guiState = State.CHOOSING;
-      refreshState();
     }
   }
 
@@ -174,11 +163,8 @@ public class GuiScreenRewardSession extends GuiScreen {
    * when the window gets resized
    */
   private void refreshState() {
-    if (this.guiState != State.INITIAL) {
-      this.activationButton.enabled = false;
-      for (GuiRewardCard rewardCard : cards) {
-        rewardCard.setEnabled(true);
-      }
+    for (GuiRewardCard rewardCard : cards) {
+      rewardCard.setEnabled(true);
     }
 
     if (this.guiState == State.FINAL) {
@@ -199,7 +185,6 @@ public class GuiScreenRewardSession extends GuiScreen {
    * An enum of states that the RewardClaimGui can be in
    */
   enum State {
-    INITIAL, // Cards aren't enabled
     CHOOSING, // Cards are enabled
     FINAL; // A card was selected
 
