@@ -1,11 +1,8 @@
 package me.dancedog.rewardclaim.ui;
 
-import java.io.IOException;
-
 import lombok.Getter;
 import me.dancedog.rewardclaim.Mod;
 import me.dancedog.rewardclaim.model.RewardSession;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -15,6 +12,8 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Mouse;
+
+import java.io.IOException;
 
 /**
  * Created by DanceDog / Ben on 3/22/20 @ 10:43 AM

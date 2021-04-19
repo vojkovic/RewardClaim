@@ -12,14 +12,14 @@ import net.minecraft.util.ResourceLocation;
  */
 @SuppressWarnings("unused")
 public enum HousingSkullGroup {
-  RED,
-  GREEN,
-  BLUE;
+    RED,
+    GREEN,
+    BLUE;
 
-  @Getter
-  private final ResourceLocation resource;
+    @Getter
+    private final ResourceLocation resource;
 
-  HousingSkullGroup() {
-    this.resource = Mod.getGuiTexture("reward_base/HOUSING_" + name() + ".png");
-  }
+    HousingSkullGroup() {
+        this.resource = Mod.getGuiTexture("reward_base/HOUSING_" + name() + ".png");
+    }
 }
