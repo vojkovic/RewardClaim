@@ -3,6 +3,8 @@ package me.dancedog.rewardclaim.ui;
 import lombok.Getter;
 import me.dancedog.rewardclaim.Mod;
 import me.dancedog.rewardclaim.model.RewardSession;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -11,6 +13,7 @@ import net.minecraft.event.ClickEvent.Action;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
@@ -36,6 +39,8 @@ public class GuiScreenRewardSession extends GuiScreen {
 
     @Override
     public void initGui() {
+        mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "card.rise")));
+
         // Move cursor out of center card
         Mouse.setCursorPosition(mc.displayWidth / 2, 25);
 
@@ -171,6 +176,8 @@ public class GuiScreenRewardSession extends GuiScreen {
             }
 
             if (cards[i].isHovered(mouseX, mouseY)) {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "reward")));
+
                 guiState = State.FINAL;
                 this.chosenCard = i;
                 refreshState();

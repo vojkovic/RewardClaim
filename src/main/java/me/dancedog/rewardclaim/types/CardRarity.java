@@ -30,6 +30,8 @@ public enum CardRarity {
     private final ResourceLocation backResource;
     @Getter
     private final ResourceLocation frontResource;
+    @Getter
+    private final ResourceLocation soundResource;
 
     CardRarity(String displayName, int subtitleColor, EnumChatFormatting rarityColor) {
         this.displayName = displayName;
@@ -40,6 +42,7 @@ public enum CardRarity {
                 .getGuiTexture("cards/cardback_" + name().toLowerCase() + ".png");
         this.frontResource = Mod
                 .getGuiTexture("cards/cardfront_" + name().toLowerCase() + ".png");
+        this.soundResource = new ResourceLocation(Mod.MODID, "card.turn." + name().toLowerCase());
     }
 
     public static CardRarity fromName(String name) {

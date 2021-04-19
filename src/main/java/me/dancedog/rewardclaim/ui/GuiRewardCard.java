@@ -5,6 +5,7 @@ import lombok.Setter;
 import me.dancedog.rewardclaim.Mod;
 import me.dancedog.rewardclaim.model.RewardCard;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -31,6 +32,8 @@ class GuiRewardCard extends Gui {
     private int posX = 0;
     private int posY = 0;
 
+    private boolean isHovered;
+
     @Setter
     private boolean isFlipped = false;
     @Setter
@@ -54,9 +57,15 @@ class GuiRewardCard extends Gui {
     }
 
     void drawRewardCard(int mouseX, int mouseY) {
-        if (isEnabled && isHovered(mouseX, mouseY)) {
-            isFlipped = true;
+        boolean isHovered = isEnabled && isHovered(mouseX, mouseY);
+        if (isHovered != this.isHovered) {
+            if (isHovered) {
+                onMouseEnter();
+            }
+
+            this.isHovered = isHovered;
         }
+
         drawCardTextures();
 
         // Draw the text onto the card's front
@@ -103,6 +112,16 @@ class GuiRewardCard extends Gui {
             GlStateManager
                     .enableBlend(); // drawGradientRect disables this, causing the screen to be tinted white
         }
+    }
+
+    private void onMouseEnter() {
+        if (!isFlipped) {
+            mc.getSoundHandler().playSound(PositionedSoundRecord.create(cardInfo.getRarity().getSoundResource()));
+        } else {
+            mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "card.hover." + (mc.theWorld.rand.nextInt(2) + 1))));
+        }
+
+        isFlipped = true;
     }
 
     private void drawCardTextures() {

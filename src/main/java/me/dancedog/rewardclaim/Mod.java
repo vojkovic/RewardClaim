@@ -36,15 +36,15 @@ public class Mod {
         MinecraftForge.EVENT_BUS.register(new RewardListener());
     }
 
-    /**
-     * Get a resource from the mod's GUI asset folder
-     *
-     * @param path Path to the resource (appended to /gui/)
-     * @return ResourceLocation of the requested asset
-     */
-    public static ResourceLocation getGuiTexture(String path) {
-        return new ResourceLocation(MODID + ":textures/gui/" + path);
-    }
+  /**
+   * Get a resource from the mod's GUI asset folder
+   *
+   * @param path Path to the resource (appended to /gui/)
+   * @return ResourceLocation of the requested asset
+   */
+  public static ResourceLocation getGuiTexture(String path) {
+    return new ResourceLocation(MODID, "textures/gui/" + path);
+  }
 
     public static void printWarning(String message, Throwable t, boolean inChat) {
         logger.warn(message, t);
