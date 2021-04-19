@@ -24,6 +24,8 @@ public class RewardSession {
   @Getter
   private List<RewardCard> cards;
   @Getter
+  private RewardDailyStreak dailyStreak;
+  @Getter
   private String csrfToken;
   @Getter
   private String cookie;
@@ -52,6 +54,7 @@ public class RewardSession {
           .add(new RewardCard(rewardElement != null ? rewardElement.getAsJsonObject() : null));
     }
     this.csrfToken = raw.get("_csrf").getAsString();
+    this.dailyStreak = new RewardDailyStreak(raw.getAsJsonObject("dailyStreak"));
     this.cookie = cookie;
   }
 
