@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
@@ -15,7 +14,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = 'RewardClaim'
-version = '0.1.2'
+version = '1.0.0'
 group = 'me.dancedog.rewardclaim'
 
 minecraft {
@@ -64,6 +63,3 @@ processResources {
         exclude 'mcmod.info'
     }
 }
-
-//noinspection GrDeprecatedAPIUsage
-sourceSets.main.output.classesDir = new File(buildDir, "classes/main")
