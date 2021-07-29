@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 /**
  * Created by DanceDog / Ben on 3/29/20 @ 9:02 AM
@@ -16,11 +17,11 @@ public class Response {
     @Getter
     private final int statusCode;
     @Getter
-    private final String newCookies;
+    private final List<String> newCookies;
     @Getter
     private final String body;
 
-    Response(int statusCode, String newCookies, InputStream inputStream) {
+    Response(int statusCode, List<String> newCookies, InputStream inputStream) {
         this.statusCode = statusCode;
         this.newCookies = newCookies;
 

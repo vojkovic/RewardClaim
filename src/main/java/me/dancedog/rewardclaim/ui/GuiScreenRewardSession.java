@@ -176,8 +176,6 @@ public class GuiScreenRewardSession extends GuiScreen {
             }
 
             if (cards[i].isHovered(mouseX, mouseY)) {
-                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "reward")));
-
                 guiState = State.FINAL;
                 this.chosenCard = i;
                 refreshState();

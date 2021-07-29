@@ -7,6 +7,12 @@ import me.dancedog.rewardclaim.Mod;
 import me.dancedog.rewardclaim.fetch.Request;
 import me.dancedog.rewardclaim.fetch.Request.Method;
 import me.dancedog.rewardclaim.fetch.Response;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,7 +35,7 @@ public class RewardSession {
     @Getter
     private String csrfToken;
     @Getter
-    private String cookie;
+    private List<String> cookie;
 
     /**
      * Create a new reward session object from the session json (rewards, ad, streak, etc), the
@@ -38,7 +44,7 @@ public class RewardSession {
      * @param raw    The session's raw json representation
      * @param cookie The cookie received from the original reward request
      */
-    public RewardSession(JsonObject raw, String cookie) {
+    public RewardSession(JsonObject raw, List<String> cookie) {
         if (!validateSessionData(raw)) {
             if (raw != null && raw.has("error")) {
                 this.error = raw.get("error").getAsString();
@@ -78,13 +84,16 @@ public class RewardSession {
                         + "&option=" + option
                         + "&_csrf=" + this.csrfToken
                         + "&activeAd=" + "0"
-                        + "&watchedFallback=false";
+                        + "&watchedFallback=false"
+                        + "&skipped=0";
                 URL url = new URL(urlStr);
 
                 Response response = new Request(url, Method.POST, this.cookie).execute();
                 if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
                     Mod.getLogger().info("Successfully claimed reward");
+                    Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "reward")));
                 } else {
+                    Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText("Failed to claim reward, check the logs").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
                     Mod.printWarning("Failed to claim reward. Server sent back a " + response.getStatusCode()
                             + " status code. Received the following body:\n" + response.getBody(), null, false);
                 }

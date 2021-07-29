@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,9 +28,9 @@ public class Request {
 
     private final URL url;
     private final Method method;
-    private final String cookies;
+    private final List<String> cookies;
 
-    public Request(URL url, Method method, @Nullable String cookies) {
+    public Request(URL url, Method method, @Nullable List<String> cookies) {
         this.url = url;
         this.method = method;
         this.cookies = cookies;
@@ -45,12 +47,23 @@ public class Request {
             connection.setRequestProperty(header.getKey(), header.getValue());
         }
         if (this.cookies != null) {
-            connection.setRequestProperty("Cookie", this.cookies);
+            connection.setRequestProperty("Cookie", String.join("; ", this.cookies));
         }
 
         // Response
         int statusCode = connection.getResponseCode();
-        String responseCookies = connection.getHeaderField("set-cookie");
+        List<String> responseCookies = new ArrayList<>();
+
+        Map<String, List<String>> headerFields = connection.getHeaderFields();
+
+        if (headerFields.containsKey("set-cookie")) {
+            responseCookies.addAll(headerFields.get("set-cookie"));
+        }
+
+        if (headerFields.containsKey("Set-Cookie")) {
+            responseCookies.addAll(headerFields.get("Set-Cookie"));
+        }
+
         if (!(statusCode >= 200 && statusCode < 300)) {
             return new Response(statusCode, responseCookies, connection.getErrorStream());
         } else {

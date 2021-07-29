@@ -6,6 +6,7 @@ import me.dancedog.rewardclaim.model.RewardSession;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,7 @@ class RewardScraper {
      * @param cookie   Cookie to be passed into the returned session (used to make claim request)
      * @return The session parsed from the provided page
      */
-    static RewardSession parseSessionFromRewardPage(Document document, String cookie) {
+    static RewardSession parseSessionFromRewardPage(Document document, List<String> cookie) {
         JsonObject rawSessionData;
 
         if (document == null || document.body() == null) {
@@ -85,7 +86,6 @@ class RewardScraper {
      * Utility method to create a JsonObject containing an error message (same format that rewards
      * page uses)
      *
-     * @param errorMsg
      * @return JsonObject containing the message
      */
     private static JsonObject createErrorJson(String errorMsg) {
