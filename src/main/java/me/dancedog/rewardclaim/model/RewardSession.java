@@ -93,9 +93,8 @@ public class RewardSession {
                     Mod.getLogger().info("Successfully claimed reward");
                     Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "reward")));
                 } else {
-                    Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText("Failed to claim reward, check the logs").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
                     Mod.printWarning("Failed to claim reward. Server sent back a " + response.getStatusCode()
-                            + " status code. Received the following body:\n" + response.getBody(), null, false);
+                            + " status code. Received the following body:\n" + response.getBody(), null, true);
                 }
             } catch (IOException e) {
                 Mod.printWarning("IOException during claim reward request", e, false);

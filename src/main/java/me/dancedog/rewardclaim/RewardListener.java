@@ -52,10 +52,10 @@ public class RewardListener {
                     sessionData.set(session);
                 } else {
                     Mod.printWarning("Server sent back a " + response.getStatusCode()
-                            + " status code. Received the following body:\n" + response.getBody(), null, false);
+                            + " status code. Received the following body:\n" + response.getBody(), null, true);
                 }
             } catch (IOException e) {
-                Mod.printWarning("IOException while fetching reward page", e, false);
+                Mod.printWarning("IOException while fetching reward page", e, true);
             }
         }).start();
     }

@@ -23,7 +23,7 @@ public class Request {
         DEFAULT_HEADERS.put("Accept", "*/*");
         DEFAULT_HEADERS.put("Content-Length", "0");
         DEFAULT_HEADERS
-                .put("User-Agent", Mod.MODID + "/" + Mod.VERSION + " (Minecraft Forge Modification)");
+                .put("User-Agent", "RewardClaim" + "/" + Mod.VERSION);
     }
 
     private final URL url;
