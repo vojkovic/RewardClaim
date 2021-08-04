@@ -107,14 +107,8 @@ public class GuiScreenRewardSession extends GuiScreen {
         }
 
         // Draw daily streak
-        StringBuilder text = new StringBuilder(EnumChatFormatting.GOLD + "Daily streak: " + EnumChatFormatting.YELLOW + session.getDailyStreak().getValue());
-
-        if (session.getDailyStreak().isToken()) {
-            text.append(" + TOKEN");
-        }
-
         drawStringRight(
-                text.toString(),
+                EnumChatFormatting.GOLD + "Daily streak",
                 2
         );
 
@@ -128,10 +122,15 @@ public class GuiScreenRewardSession extends GuiScreen {
                 0
         );
 
+        StringBuilder infoText = new StringBuilder(EnumChatFormatting.DARK_GRAY + "" + EnumChatFormatting.ITALIC + "Reward ID: " + session.getId());
+
+        if (session.getDailyStreak().isToken()) {
+            infoText.append(" (token)");
+        }
+
         // Clickable text for reward page
         drawString(fontRendererObj,
-                EnumChatFormatting.DARK_GRAY + "" + EnumChatFormatting.ITALIC + "Reward ID: " + session
-                        .getId(),
+                infoText.toString(),
                 3,
                 height - 10,
                 0);
