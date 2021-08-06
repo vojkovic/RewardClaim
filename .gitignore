@@ -1,15 +1,9 @@
-/*
+.gradle
+run
+out
+build
 
-# Important Dirs
-!/src
-!/Sample Reward Json
-
-# Minecraft Options
-!/run/options.txt
-
-# Gradle & Wrapper
-!gradlew
-!gradlew.bat
-!build.gradle
-!settings.gradle
-!/gradle
+.idea
+*.iml
+*.ipr
+*.iws

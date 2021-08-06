@@ -4,7 +4,7 @@ A fork of [Dance-Dog/RewardClaim](https://github.com/Dance-Dog/RewardClaim) but 
 - sounds
 - no "Ready?" button
 - dailystreak info
-- [ ] ads for unranked (so lagpickle doesnt get mad)
+- [ ] ads for unranked (currently unranked just can't use this mod)
 
 ## Installation
 1. Get a .jar from [releases](https://github.com/js6pak/RewardClaim/releases) or CI
