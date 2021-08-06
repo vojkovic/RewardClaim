@@ -2,7 +2,7 @@ package me.dancedog.rewardclaim.ui;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.dancedog.rewardclaim.Mod;
+import me.dancedog.rewardclaim.RewardClaim;
 import me.dancedog.rewardclaim.model.RewardCard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -25,8 +25,7 @@ class GuiRewardCard extends Gui {
     static final int CARD_HEIGHT = (int) Math.ceil(CARD_WIDTH * 1.43);
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static final FontRenderer fontRendererObj = mc.fontRendererObj;
-    private static final ResourceLocation tooltipTexture = Mod
-            .getGuiTexture("cards/card_tooltip.png");
+    private static final ResourceLocation tooltipTexture = RewardClaim.getGuiTexture("card", "tooltip.png");
 
     private final RewardCard cardInfo;
     private int posX = 0;
@@ -118,7 +117,7 @@ class GuiRewardCard extends Gui {
         if (!isFlipped) {
             mc.getSoundHandler().playSound(PositionedSoundRecord.create(cardInfo.getRarity().getSoundResource()));
         } else {
-            mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "card.hover." + (mc.theWorld.rand.nextInt(2) + 1))));
+            mc.getSoundHandler().playSound(PositionedSoundRecord.create(RewardClaim.getSound("card", "hover", String.valueOf((mc.theWorld.rand.nextInt(2) + 1)))));
         }
 
         isFlipped = true;

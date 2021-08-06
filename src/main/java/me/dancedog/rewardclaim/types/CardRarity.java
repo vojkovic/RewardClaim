@@ -1,7 +1,7 @@
 package me.dancedog.rewardclaim.types;
 
 import lombok.Getter;
-import me.dancedog.rewardclaim.Mod;
+import me.dancedog.rewardclaim.RewardClaim;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 
@@ -38,11 +38,9 @@ public enum CardRarity {
         this.subtitleColor = subtitleColor;
         this.rarityColor = rarityColor;
 
-        this.backResource = Mod
-                .getGuiTexture("cards/cardback_" + name().toLowerCase() + ".png");
-        this.frontResource = Mod
-                .getGuiTexture("cards/cardfront_" + name().toLowerCase() + ".png");
-        this.soundResource = new ResourceLocation(Mod.MODID, "card.turn." + name().toLowerCase());
+        this.backResource = RewardClaim.getGuiTexture("card", "back", (name().equals("ERROR") ? "error" : "common") + ".png");
+        this.frontResource = RewardClaim.getGuiTexture("card", "front", name().toLowerCase() + ".png");
+        this.soundResource = RewardClaim.getSound("card", "turn", name().toLowerCase());
     }
 
     public static CardRarity fromName(String name) {

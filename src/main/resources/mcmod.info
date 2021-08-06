@@ -1,16 +1,16 @@
 [
   {
-    "name": "§6§lRewardClaim§r",
     "modid": "rewardclaim",
-    "description": "Claim your Hypixel daily rewards §owithout opening a browser!§r",
+    "name": "RewardClaim",
+    "description": "Claim your Hypixel daily rewards without opening a browser!",
     "version": "${version}",
-    "mcversion": "1.8.9",
+    "mcversion": "${mcversion}",
     "url": "https://github.com/js6pak/RewardClaim",
     "authorList": [
       "Dance_Dog",
       "js6pak"
     ],
     "logoFile": "assets/rewardclaim/textures/banner.png",
-    "credits": "§lAll credit goes to Hypixel Inc. (§r https://hypixel.net §l) for the §loriginal §lDaily §lReward §lassets §lused §lby §lthis §lmod§r"
+    "credits": "All credit goes to Hypixel Inc. ( https://hypixel.net ) for the original Daily Reward assets used by this mod"
   }
 ]

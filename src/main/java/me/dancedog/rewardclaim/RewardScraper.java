@@ -17,25 +17,22 @@ import java.util.regex.Pattern;
  */
 class RewardScraper {
 
-    private static final Pattern CSRF_TOKEN_PATTERN = Pattern
-            .compile("window\\.securityToken = ['\"](.*?)['\"]");
-    private static final Pattern SESSION_JSON_PATTERN = Pattern
-            .compile("window\\.appData = ['\"](.*?})['\"]");
+    private static final Pattern CSRF_TOKEN_PATTERN = Pattern.compile("window\\.securityToken = ['\"](.*?)['\"]");
+    private static final Pattern SESSION_JSON_PATTERN = Pattern.compile("window\\.appData = ['\"](.*?})['\"]");
     private static final JsonParser jsonParser = new JsonParser();
 
     /**
      * Parse the session data from a daily reward page
      *
      * @param document Document representing the reward page
-     * @param cookie   Cookie to be passed into the returned session (used to make claim request)
+     * @param cookies  Cookies to be passed into the returned session (used to make claim request)
      * @return The session parsed from the provided page
      */
-    static RewardSession parseSessionFromRewardPage(Document document, List<String> cookie) {
+    static RewardSession parseSessionFromRewardPage(Document document, List<String> cookies) {
         JsonObject rawSessionData;
 
-        if (document == null || document.body() == null) {
+        if (document == null) {
             rawSessionData = createErrorJson("Document was null");
-
         } else {
             // The "props" script contains information useful the daily reward react app
             // This includes the rewards data, csrf token, i18n messages, etc
@@ -49,7 +46,7 @@ class RewardScraper {
                 rawSessionData.addProperty("_csrf", getCsrfToken(propsScriptContents));
             }
         }
-        return new RewardSession(rawSessionData, cookie);
+        return new RewardSession(rawSessionData, cookies);
     }
 
     /**

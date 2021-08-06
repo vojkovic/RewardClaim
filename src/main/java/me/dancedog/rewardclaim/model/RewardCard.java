@@ -3,7 +3,7 @@ package me.dancedog.rewardclaim.model;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.NonNull;
-import me.dancedog.rewardclaim.Mod;
+import me.dancedog.rewardclaim.RewardClaim;
 import me.dancedog.rewardclaim.types.CardRarity;
 import me.dancedog.rewardclaim.types.GameType;
 import me.dancedog.rewardclaim.types.HousingSkull;
@@ -206,7 +206,7 @@ public class RewardCard {
             textureName = this.rewardType.name();
         }
 
-        this.typeIcon = Mod.getGuiTexture("reward_base/" + textureName + ".png");
+        this.typeIcon = RewardClaim.getGuiTexture("reward", "base", textureName + ".png");
     }
 
     /**
@@ -218,14 +218,13 @@ public class RewardCard {
         if (this.rewardType == RewardType.ADD_VANITY) {
             String key = raw.get(VANITYKEY_JSON_KEY).getAsString();
             if (key.contains("suit")) {
-                this.itemIcon = Mod.getGuiTexture(
-                        "reward_sub/armor/" + key.replaceAll("([A-Za-z]+_)(?!$)", "").toUpperCase() + ".png");
-                this.itemIconBg = Mod.getGuiTexture("bg_armor.png");
+                this.itemIcon = RewardClaim.getGuiTexture("reward", "sub", "armor", key.replaceAll("([A-Za-z]+_)(?!$)", "").toUpperCase() + ".png");
+                this.itemIconBg = RewardClaim.getGuiTexture("reward", "background", "armor.png");
             }
 
         } else if (this.rewardType == RewardType.HOUSING_PACKAGE) {
             this.itemIcon = getHousingSkull(raw).getResource();
-            this.itemIconBg = Mod.getGuiTexture("bg_housing.png");
+            this.itemIconBg = RewardClaim.getGuiTexture("reward", "background", "housing.png");
         }
     }
 

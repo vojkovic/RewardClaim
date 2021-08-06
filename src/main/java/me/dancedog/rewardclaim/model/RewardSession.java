@@ -1,21 +1,22 @@
 package me.dancedog.rewardclaim.model;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import me.dancedog.rewardclaim.Mod;
-import me.dancedog.rewardclaim.fetch.Request;
-import me.dancedog.rewardclaim.fetch.Request.Method;
-import me.dancedog.rewardclaim.fetch.Response;
+import lombok.NonNull;
+import me.dancedog.rewardclaim.RewardClaim;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okhttp3.internal.Util;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,27 +25,43 @@ import java.util.List;
  */
 public class RewardSession {
 
+    private static final Gson gson = new Gson();
+
     @Getter
     String error;
+
     @Getter
     private String id;
+
     @Getter
     private List<RewardCard> cards;
+
+    @Getter
+    private boolean skippable;
+
     @Getter
     private RewardDailyStreak dailyStreak;
+
+    @Getter
+    private RewardAd ad;
+
+    @Getter
+    private int activeAd;
+
     @Getter
     private String csrfToken;
+
     @Getter
-    private List<String> cookie;
+    private List<String> cookies;
 
     /**
      * Create a new reward session object from the session json (rewards, ad, streak, etc), the
-     * session's csrf token and the session's cookie
+     * session's csrf token and the session's cookies
      *
-     * @param raw    The session's raw json representation
-     * @param cookie The cookie received from the original reward request
+     * @param raw     The session's raw json representation
+     * @param cookies The cookies received from the original reward request
      */
-    public RewardSession(JsonObject raw, List<String> cookie) {
+    public RewardSession(JsonObject raw, List<String> cookies) {
         if (!validateSessionData(raw)) {
             if (raw != null && raw.has("error")) {
                 this.error = raw.get("error").getAsString();
@@ -57,12 +74,14 @@ public class RewardSession {
         this.id = raw.get("id").getAsString();
         this.cards = new ArrayList<>();
         for (JsonElement rewardElement : raw.get("rewards").getAsJsonArray()) {
-            this.cards
-                    .add(new RewardCard(rewardElement != null ? rewardElement.getAsJsonObject() : null));
+            this.cards.add(new RewardCard(rewardElement != null ? rewardElement.getAsJsonObject() : null));
         }
+        this.skippable = raw.get("skippable").getAsBoolean();
+        this.dailyStreak = gson.fromJson(raw.get("dailyStreak"), RewardDailyStreak.class);
+        this.ad = gson.fromJson(raw.get("ad"), RewardAd.class);
+        this.activeAd = raw.get("activeAd").getAsInt();
         this.csrfToken = raw.get("_csrf").getAsString();
-        this.dailyStreak = new RewardDailyStreak(raw.getAsJsonObject("dailyStreak"));
-        this.cookie = cookie;
+        this.cookies = cookies;
     }
 
     private static boolean validateSessionData(JsonObject raw) {
@@ -76,29 +95,49 @@ public class RewardSession {
     }
 
     public void claimReward(int option) {
-        new Thread(() -> {
-            try {
-                // TODO: 3/29/20 Actually parse the activeAd id & send it in request
-                String urlStr = "https://rewards.hypixel.net/claim-reward/claim"
-                        + "?id=" + this.id
-                        + "&option=" + option
-                        + "&_csrf=" + this.csrfToken
-                        + "&activeAd=" + "0"
-                        + "&watchedFallback=false"
-                        + "&skipped=0";
-                URL url = new URL(urlStr);
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("rewards.hypixel.net")
+                .addPathSegments("claim-reward/claim")
+                .addQueryParameter("id", this.id)
+                .addQueryParameter("option", String.valueOf(option))
+                .addQueryParameter("_csrf", this.csrfToken)
+                .addQueryParameter("activeAd", String.valueOf(this.activeAd))
+                .addQueryParameter("watchedFallback", "false")
+                .addQueryParameter("skipped", "0")
+                .build();
 
-                Response response = new Request(url, Method.POST, this.cookie).execute();
-                if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
-                    Mod.getLogger().info("Successfully claimed reward");
-                    Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "reward")));
-                } else {
-                    Mod.printWarning("Failed to claim reward. Server sent back a " + response.getStatusCode()
-                            + " status code. Received the following body:\n" + response.getBody(), null, true);
-                }
-            } catch (IOException e) {
-                Mod.printWarning("IOException during claim reward request", e, false);
+        Request request = new Request.Builder()
+                .url(url)
+                .header("User-Agent", RewardClaim.MOD_NAME + "/" + RewardClaim.VERSION)
+                .header("Cookie", String.join("; ", this.cookies))
+                .post(Util.EMPTY_REQUEST)
+                .build();
+
+        RewardClaim.getHttpClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                RewardClaim.printWarning("Failed to claim the reward", e, true);
             }
-        }).start();
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (!response.isSuccessful()) {
+                    RewardClaim.printWarning("Failed to claim reward. Server sent back a " + response.code() + " status code", true);
+                    RewardClaim.printWarning("Received the following body:\n" + response.body(), false);
+                    return;
+                }
+
+                ResponseBody body = response.body();
+
+                if (body == null) {
+                    RewardClaim.printWarning("Server sent back an empty body", true);
+                    return;
+                }
+
+                RewardClaim.getLogger().info("Successfully claimed reward");
+                Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(RewardClaim.getSound("reward")));
+            }
+        });
     }
 }

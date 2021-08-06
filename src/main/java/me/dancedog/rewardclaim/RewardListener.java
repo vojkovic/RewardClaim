@@ -1,8 +1,6 @@
 package me.dancedog.rewardclaim;
 
-import me.dancedog.rewardclaim.fetch.Request;
-import me.dancedog.rewardclaim.fetch.Request.Method;
-import me.dancedog.rewardclaim.fetch.Response;
+import lombok.NonNull;
 import me.dancedog.rewardclaim.model.RewardSession;
 import me.dancedog.rewardclaim.ui.GuiScreenRewardSession;
 import net.minecraft.client.Minecraft;
@@ -11,12 +9,15 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,10 +27,9 @@ import java.util.regex.Pattern;
  */
 public class RewardListener {
 
-    private static final Pattern REWARD_MESSAGE_PATTERN = Pattern.compile(
-            "§r§6Click the link to visit our website and claim your reward: §r§bhttps://rewards\\.hypixel\\.net/claim-reward/([A-Za-z0-9]+)§r");
+    private static final Pattern REWARD_MESSAGE_PATTERN = Pattern.compile("§r§6Click the link to visit our website and claim your reward: §r§bhttps://rewards\\.hypixel\\.net/claim-reward/([A-Za-z0-9]+)§r");
 
-    private long lastRewardOpenedMs = new Date().getTime();
+    private long lastRewardOpenedMs;
     private final AtomicReference<RewardSession> sessionData = new AtomicReference<>();
 
     /**
@@ -39,28 +39,38 @@ public class RewardListener {
      * @param sessionId Session ID to scrape reward data from
      */
     private void fetchRewardSession(String sessionId) {
-        // Make the claim request
-        new Thread(() -> {
-            try {
-                URL url = new URL("https://rewards.hypixel.net/claim-reward/" + sessionId);
-                Response response = new Request(url, Method.GET, null).execute();
+        Request request = new Request.Builder()
+                .url("https://rewards.hypixel.net/claim-reward/" + sessionId)
+                .header("User-Agent", RewardClaim.MOD_NAME + "/" + RewardClaim.VERSION)
+                .build();
 
-                if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
-                    Document document = Jsoup.parse(response.getBody());
-                    RewardSession session = RewardScraper
-                            .parseSessionFromRewardPage(document, response.getNewCookies());
-                    sessionData.set(session);
-                } else {
-                    Mod.printWarning("Server sent back a " + response.getStatusCode()
-                            + " status code. Received the following body:\n" + response.getBody(), null, true);
-                }
-            } catch (IOException e) {
-                Mod.printWarning("IOException while fetching reward page", e, true);
+        RewardClaim.getHttpClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                RewardClaim.printWarning("Failed to fetch the reward page", e, true);
             }
-        }).start();
-    }
 
-    // ================================================================================
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    RewardClaim.printWarning("Failed to fetch the reward page. Server sent back a " + response.code() + " status code", true);
+                    RewardClaim.printWarning("Received the following body:\n" + response.body(), false);
+                    return;
+                }
+
+                ResponseBody body = response.body();
+
+                if (body == null) {
+                    RewardClaim.printWarning("Server sent back an empty body", true);
+                    return;
+                }
+
+                Document document = Jsoup.parse(body.string());
+                RewardSession session = RewardScraper.parseSessionFromRewardPage(document, response.headers("Set-Cookie"));
+                sessionData.set(session);
+            }
+        });
+    }
 
     /**
      * Checks every tick to see if there is a reward session to display
@@ -74,11 +84,17 @@ public class RewardListener {
         RewardSession currentSessionData = sessionData.getAndSet(null);
         if (currentSessionData != null) {
             if (currentSessionData.getError() != null) {
-                Mod.printWarning("Failed to get reward: " + currentSessionData.getError(), null, true);
+                RewardClaim.printWarning("Failed to get reward: " + currentSessionData.getError(), true);
                 return;
             }
-            Minecraft.getMinecraft()
-                    .displayGuiScreen(new GuiScreenRewardSession(currentSessionData));
+
+            // TODO implement ads
+            if (!currentSessionData.isSkippable()) {
+                RewardClaim.printWarning("Ads are not yet implemented - go get a rank ;)", true);
+                return;
+            }
+
+            Minecraft.getMinecraft().displayGuiScreen(new GuiScreenRewardSession(currentSessionData));
         }
     }
 
@@ -93,7 +109,7 @@ public class RewardListener {
             lastRewardOpenedMs = System.currentTimeMillis();
 
             String sessionId = chatMatcher.group(1);
-            Mod.getLogger().info("Triggered fetch for reward session #{}", sessionId);
+            RewardClaim.getLogger().info("Triggered fetch for reward session #{}", sessionId);
             this.fetchRewardSession(sessionId);
         }
     }

@@ -1,9 +1,8 @@
 package me.dancedog.rewardclaim.ui;
 
 import lombok.Getter;
-import me.dancedog.rewardclaim.Mod;
+import me.dancedog.rewardclaim.RewardClaim;
 import me.dancedog.rewardclaim.model.RewardSession;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -39,7 +38,7 @@ public class GuiScreenRewardSession extends GuiScreen {
 
     @Override
     public void initGui() {
-        mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(Mod.MODID, "card.rise")));
+        mc.getSoundHandler().playSound(PositionedSoundRecord.create(RewardClaim.getSound("card", "rise")));
 
         // Move cursor out of center card
         Mouse.setCursorPosition(mc.displayWidth / 2, 25);
@@ -179,7 +178,7 @@ public class GuiScreenRewardSession extends GuiScreen {
                 this.chosenCard = i;
                 refreshState();
 
-                Mod.getLogger().debug("Card {} was claimed", i);
+                RewardClaim.getLogger().debug("Card {} was claimed", i);
                 this.session.claimReward(i);
             }
         }

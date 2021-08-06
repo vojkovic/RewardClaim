@@ -1,25 +1,26 @@
 plugins {
     id "java"
     id "com.github.johnrengelman.shadow" version "6.1.0"
-    id "net.minecraftforge.gradle.forge" version "6f53277"
+    id "net.minecraftforge.gradle.forge" version "ddb1eb0"
+    id "net.kyori.blossom" version "1.2.0"
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+compileJava.options.encoding = "UTF-8"
 
-archivesBaseName = 'RewardClaim'
-version = '1.0.1'
-group = 'me.dancedog.rewardclaim'
+archivesBaseName = "RewardClaim"
+version = "1.1.0"
+group = "me.dancedog.rewardclaim"
 
 minecraft {
     version = "1.8.9-11.15.1.2318-1.8.9"
-    runDir = 'run'
-    mappings = 'stable_22'
+    runDir = "run"
+    mappings = "stable_22"
 }
 
 configurations {
-    shade
-    shade.transitive = false
-    compile.extendsFrom(shade)
+    include
+    implementation.extendsFrom(include)
 }
 
 repositories {
@@ -27,15 +28,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    shade 'org.jsoup:jsoup:1.14.1'
-}
+    compileOnly "org.projectlombok:lombok:1.18.20"
+    annotationProcessor "org.projectlombok:lombok:1.18.20"
 
-jar {
-    from configurations.shade.collect {
-        it.isDirectory() ? it : zipTree(it)
-    }
+    include "org.jsoup:jsoup:1.14.1"
+    // noinspection GradlePackageUpdate: okhttp v4 is kotlin, which bloats the JAR - use java 9 httpclient if we ever get out of the 1.8.9 hell
+    include "com.squareup.okhttp3:okhttp:3.14.9"
 }
 
 processResources {
@@ -45,14 +43,37 @@ processResources {
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
+        include "mcmod.info"
 
         // replace version and mcversion
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+        expand "version": project.version, "mcversion": project.minecraft.version
     }
 
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+        exclude "mcmod.info"
     }
 }
+
+blossom {
+    replaceToken("@VERSION@", project.version)
+}
+
+shadowJar {
+    archiveClassifier.set(null)
+    configurations = [project.configurations.include]
+
+    relocate "org.jsoup", "me.dancedog.rewardclaim.jsoup"
+    relocate "okhttp3", "me.dancedog.rewardclaim.okhttp3"
+    relocate "okio", "me.dancedog.rewardclaim.okhttp3.okio"
+
+    minimize()
+
+    exclude "META-INF/**/*"
+}
+
+reobf {
+    shadowJar {}
+}
+
+tasks.build.dependsOn reobfShadowJar
