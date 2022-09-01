@@ -14,7 +14,7 @@ import okhttp3.OkHttpClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = RewardClaim.MOD_ID, useMetadata = true)
+@Mod(modid = RewardClaim.MOD_ID, version = RewardClaim.VERSION, useMetadata = true)
 public class RewardClaim {
 
     public static final String MOD_ID = "rewardclaim";
@@ -39,10 +39,6 @@ public class RewardClaim {
 
     public static ResourceLocation getGuiTexture(String... path) {
         return new ResourceLocation(MOD_ID, "textures/gui/" + String.join("/", path));
-    }
-
-    public static ResourceLocation getSound(String... path) {
-        return new ResourceLocation(MOD_ID, String.join(".", path));
     }
 
     public static void printWarning(String message, Throwable t, boolean inChat) {

@@ -33,13 +33,7 @@ public enum GameType {
     BEDWARS("Bed Wars"),
     MURDER_MYSTERY("Murder Mystery"),
     BUILD_BATTLE("Build Battle"),
-    DUELS("Duels"),
-
-    // Not currently appearing in rewards, but just in case
-    HOUSING("Housing"),
-    SKYCLASH("SkyClash"),
-    PROTOTYPE("Prototype"),
-    SKYBLOCK("SkyBlock");
+    DUELS("Duels");
 
     @Getter
     private final String properName;

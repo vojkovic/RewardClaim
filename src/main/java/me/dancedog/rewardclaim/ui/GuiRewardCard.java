@@ -5,7 +5,6 @@ import lombok.Setter;
 import me.dancedog.rewardclaim.RewardClaim;
 import me.dancedog.rewardclaim.model.RewardCard;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -33,10 +32,6 @@ class GuiRewardCard extends Gui {
 
     private boolean isHovered;
 
-    @Setter
-    private boolean isFlipped = false;
-    @Setter
-    private boolean isEnabled = false;
     @Getter
     private List<String> tooltipLines;
     @Setter
@@ -56,71 +51,47 @@ class GuiRewardCard extends Gui {
     }
 
     void drawRewardCard(int mouseX, int mouseY) {
-        boolean isHovered = isEnabled && isHovered(mouseX, mouseY);
+        boolean isHovered = isHovered(mouseX, mouseY);
         if (isHovered != this.isHovered) {
-            if (isHovered) {
-                onMouseEnter();
-            }
-
             this.isHovered = isHovered;
         }
 
         drawCardTextures();
 
-        // Draw the text onto the card's front
-        if (isFlipped) {
-            // Card title
-            GL11.glPushMatrix();
-            double titleScale =
-                    64d / fontRendererObj.getStringWidth(cardInfo.getTitle()); // Max title length is 65px
-            GL11.glScaled(titleScale, titleScale, titleScale);
-            drawCenteredString(
-                    fontRendererObj,
-                    cardInfo.getTitle(),
-                    (int) ((posX + CARD_WIDTH / 2d) / titleScale),
-                    (int) ((posY + 111) / titleScale),
-                    0xffffff);
-            GL11.glPopMatrix();
+        // Card title
+        GL11.glPushMatrix();
+        double titleScale =
+                64d / fontRendererObj.getStringWidth(cardInfo.getTitle()); // Max title length is 65px
+        GL11.glScaled(titleScale, titleScale, titleScale);
+        drawCenteredString(
+                fontRendererObj,
+                cardInfo.getTitle(),
+                (int) ((posX + CARD_WIDTH / 2d) / titleScale),
+                (int) ((posY + 111) / titleScale),
+                0xffffff);
+        GL11.glPopMatrix();
 
-            // Card subtitle
-            GL11.glPushMatrix();
-            int subtitleWidth = fontRendererObj.getStringWidth(cardInfo.getSubtitle());
-            double subtitleScale;
-            if (subtitleWidth > 74) {
-                subtitleScale = 74d / subtitleWidth;
-            } else if (subtitleWidth < 67) {
-                subtitleScale = 1.1;
-            } else {
-                subtitleScale = 1;
-            }
-            GL11.glScaled(subtitleScale, subtitleScale, subtitleScale);
-            drawCenteredString(
-                    fontRendererObj,
-                    cardInfo.getSubtitle(),
-                    (int) ((posX + CARD_WIDTH / 2d) / subtitleScale),
-                    (int) ((posY + 135) / subtitleScale),
-                    cardInfo.getRarity().getSubtitleColor());
-            GL11.glPopMatrix();
+        // Card subtitle
+        GL11.glPushMatrix();
+        int subtitleWidth = fontRendererObj.getStringWidth(cardInfo.getSubtitle());
+        double subtitleScale;
+        if (subtitleWidth > 74) {
+            subtitleScale = 74d / subtitleWidth;
+        } else if (subtitleWidth < 67) {
+            subtitleScale = 1.1;
+        } else {
+            subtitleScale = 1;
         }
+        GL11.glScaled(subtitleScale, subtitleScale, subtitleScale);
+        drawCenteredString(
+                fontRendererObj,
+                cardInfo.getSubtitle(),
+                (int) ((posX + CARD_WIDTH / 2d) / subtitleScale),
+                (int) ((posY + 135) / subtitleScale),
+                cardInfo.getRarity().getSubtitleColor());
+        GL11.glPopMatrix();
 
         drawTooltip();
-
-        // Makes the card darker if the ready button is not yet pressed (same appearance as being behind drawDefaultBackground)
-        if (!this.isEnabled) {
-            drawGradientRect(posX, posY, posX + CARD_WIDTH, posY + CARD_HEIGHT, -1072689136, -804253680);
-            GlStateManager
-                    .enableBlend(); // drawGradientRect disables this, causing the screen to be tinted white
-        }
-    }
-
-    private void onMouseEnter() {
-        if (!isFlipped) {
-            mc.getSoundHandler().playSound(PositionedSoundRecord.create(cardInfo.getRarity().getSoundResource()));
-        } else {
-            mc.getSoundHandler().playSound(PositionedSoundRecord.create(RewardClaim.getSound("card", "hover", String.valueOf((mc.theWorld.rand.nextInt(2) + 1)))));
-        }
-
-        isFlipped = true;
     }
 
     private void drawCardTextures() {
@@ -130,39 +101,34 @@ class GuiRewardCard extends Gui {
 
         // Draw the card itself
         mc.getTextureManager().bindTexture(
-                this.isFlipped ?
-                        cardInfo.getRarity().getFrontResource()
-                        : cardInfo.getRarity().getBackResource());
+        cardInfo.getRarity().getFrontResource());
         drawModalRectWithCustomSizedTexture(posX, posY, 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_WIDTH,
                 CARD_HEIGHT);
 
-        // Draw the card's front side
-        if (this.isFlipped) {
-      /*
-      Draw Images
-       */
+        /*
+        Draw Images
+        */
 
-            // Main card image
-            mc.getTextureManager().bindTexture(cardInfo.getTypeIcon());
-            drawModalRectWithCustomSizedTexture(posX, posY, 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_WIDTH,
-                    CARD_HEIGHT);
+        // Main card image
+        mc.getTextureManager().bindTexture(cardInfo.getTypeIcon());
+        drawModalRectWithCustomSizedTexture(posX, posY, 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_WIDTH,
+                CARD_HEIGHT);
 
-            // Game icon for coins
-            if (cardInfo.getGameType() != null) {
-                mc.getTextureManager().bindTexture(cardInfo.getGameType().getResource());
-                drawModalRectWithCustomSizedTexture(posX + 65, posY + 63, 0, 0, 21, 21, 21, 21);
-            }
+        // Game icon for coins
+        if (cardInfo.getGameType() != null) {
+            mc.getTextureManager().bindTexture(cardInfo.getGameType().getResource());
+            drawModalRectWithCustomSizedTexture(posX + 65, posY + 63, 0, 0, 21, 21, 21, 21);
+        }
 
-            // Item icon for armor & housing blocks
-            if (cardInfo.getItemIcon() != null) {
-                // Background
-                mc.getTextureManager().bindTexture(cardInfo.getItemIconBg());
-                drawModalRectWithCustomSizedTexture(posX + 64, posY + 63, 0, 0, 28, 28, 28, 28);
+        // Item icon for armor & housing blocks
+        if (cardInfo.getItemIcon() != null) {
+            // Background
+            mc.getTextureManager().bindTexture(cardInfo.getItemIconBg());
+            drawModalRectWithCustomSizedTexture(posX + 64, posY + 63, 0, 0, 28, 28, 28, 28);
 
-                // Draw the item inside the background
-                mc.getTextureManager().bindTexture(cardInfo.getItemIcon());
-                drawModalRectWithCustomSizedTexture(posX + 67, posY + 66, 0, 0, 22, 22, 22, 22);
-            }
+            // Draw the item inside the background
+            mc.getTextureManager().bindTexture(cardInfo.getItemIcon());
+            drawModalRectWithCustomSizedTexture(posX + 67, posY + 66, 0, 0, 22, 22, 22, 22);
         }
         GL11.glPopMatrix();
     }
@@ -205,9 +171,7 @@ class GuiRewardCard extends Gui {
     }
 
     boolean canShowTooltip(int mouseX, int mouseY) {
-        return isEnabled
-                && isFlipped
-                && isHovered(mouseX, mouseY);
+        return isHovered(mouseX, mouseY);
     }
 
     boolean isHovered(int mouseX, int mouseY) {

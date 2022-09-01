@@ -3,7 +3,6 @@ package me.dancedog.rewardclaim.ui;
 import lombok.Getter;
 import me.dancedog.rewardclaim.RewardClaim;
 import me.dancedog.rewardclaim.model.RewardSession;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -27,7 +26,6 @@ public class GuiScreenRewardSession extends GuiScreen {
     private RewardSession session;
 
     private GuiRewardCard[] cards = new GuiRewardCard[3];
-    private GuiButton closeButton;
 
     public GuiScreenRewardSession(RewardSession session) {
         this.session = session;
@@ -38,8 +36,6 @@ public class GuiScreenRewardSession extends GuiScreen {
 
     @Override
     public void initGui() {
-        mc.getSoundHandler().playSound(PositionedSoundRecord.create(RewardClaim.getSound("card", "rise")));
-
         // Move cursor out of center card
         Mouse.setCursorPosition(mc.displayWidth / 2, 25);
 
@@ -67,18 +63,6 @@ public class GuiScreenRewardSession extends GuiScreen {
             this.cards[i].initGui(posX, posY);
         }
 
-        // Close button ("X")
-        int squareButtonSize = 20;
-        this.closeButton = new GuiButton(
-                0,
-                this.width - squareButtonSize - 5,
-                5,
-                squareButtonSize,
-                squareButtonSize,
-                "X");
-
-        this.buttonList.add(closeButton);
-
         refreshState();
     }
 
@@ -87,13 +71,6 @@ public class GuiScreenRewardSession extends GuiScreen {
         // Draw bg & buttons
         this.drawGradientRect(0, 0, this.width, this.height, -1072689136, -804253680);
         super.drawScreen(mouseX, mouseY, partialTicks);
-
-        // Header
-        drawCenteredString(fontRendererObj,
-                EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + guiState.titleMessage,
-                width / 2,
-                (height / 2 - (GuiRewardCard.CARD_HEIGHT / 2)) / 2 - 5,
-                0);
 
         // Determine tooltip states
         for (GuiRewardCard rewardCard : cards) {
@@ -105,19 +82,13 @@ public class GuiScreenRewardSession extends GuiScreen {
             rewardCard.drawRewardCard(mouseX, mouseY);
         }
 
-        // Draw daily streak
         drawStringRight(
-                EnumChatFormatting.GOLD + "Daily streak",
-                2
-        );
-
-        drawStringRight(
-                EnumChatFormatting.GOLD + "Current score: " + EnumChatFormatting.YELLOW + session.getDailyStreak().getScore(),
+                EnumChatFormatting.GOLD + "Current score" + EnumChatFormatting.DARK_GRAY + ": " + EnumChatFormatting.YELLOW + session.getDailyStreak().getScore(),
                 1
         );
 
         drawStringRight(
-                EnumChatFormatting.GOLD + "High score: " + EnumChatFormatting.YELLOW + session.getDailyStreak().getHighScore(),
+                EnumChatFormatting.GOLD + "High score" + EnumChatFormatting.DARK_GRAY + ": " + EnumChatFormatting.YELLOW + session.getDailyStreak().getHighScore(),
                 0
         );
 
@@ -186,29 +157,13 @@ public class GuiScreenRewardSession extends GuiScreen {
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    @Override
-    protected void actionPerformed(GuiButton button) {
-        if (button == closeButton) {
-            this.mc.setIngameFocus();
-
-        }
-    }
-
     /**
      * Updates all elements according to the GUI's current state This prevents the GUI from resetting
      * when the window gets resized
      */
     private void refreshState() {
-        for (GuiRewardCard rewardCard : cards) {
-            rewardCard.setEnabled(true);
-        }
-
         if (this.guiState == State.FINAL) {
-            for (GuiRewardCard rewardCard : cards) {
-                rewardCard.setFlipped(true);
-                rewardCard.setEnabled(false);
-            }
-            cards[chosenCard].setEnabled(true);
+            this.mc.setIngameFocus();
         }
     }
 
@@ -223,12 +178,5 @@ public class GuiScreenRewardSession extends GuiScreen {
     enum State {
         CHOOSING, // Cards are enabled
         FINAL; // A card was selected
-
-        @Getter
-        private final String titleMessage;
-
-        State() {
-            this.titleMessage = I18n.format("message.gui.title." + name().toLowerCase());
-        }
     }
 }

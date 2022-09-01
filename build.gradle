@@ -1,7 +1,7 @@
 plugins {
     id "java"
-    id "com.github.johnrengelman.shadow" version "6.1.0"
-    id "net.minecraftforge.gradle.forge" version "ddb1eb0"
+    id "com.github.johnrengelman.shadow" version "2.0.1"
+    id "net.minecraftforge.gradle.forge" version "d974a94268"
     id "net.kyori.blossom" version "1.2.0"
 }
 
@@ -9,7 +9,7 @@ sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 compileJava.options.encoding = "UTF-8"
 
 archivesBaseName = "RewardClaim"
-version = "1.1.0"
+version = "1.1.1"
 group = "me.dancedog.rewardclaim"
 
 minecraft {
@@ -32,7 +32,6 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:1.18.20"
 
     include "org.jsoup:jsoup:1.14.1"
-    // noinspection GradlePackageUpdate: okhttp v4 is kotlin, which bloats the JAR - use java 9 httpclient if we ever get out of the 1.8.9 hell
     include "com.squareup.okhttp3:okhttp:3.14.9"
 }
 
@@ -60,14 +59,11 @@ blossom {
 }
 
 shadowJar {
-    archiveClassifier.set(null)
     configurations = [project.configurations.include]
 
     relocate "org.jsoup", "me.dancedog.rewardclaim.jsoup"
     relocate "okhttp3", "me.dancedog.rewardclaim.okhttp3"
     relocate "okio", "me.dancedog.rewardclaim.okhttp3.okio"
-
-    minimize()
 
     exclude "META-INF/**/*"
 }

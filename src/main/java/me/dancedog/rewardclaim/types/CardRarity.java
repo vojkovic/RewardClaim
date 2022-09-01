@@ -27,20 +27,14 @@ public enum CardRarity {
     private final EnumChatFormatting rarityColor;
 
     @Getter
-    private final ResourceLocation backResource;
-    @Getter
     private final ResourceLocation frontResource;
-    @Getter
-    private final ResourceLocation soundResource;
 
     CardRarity(String displayName, int subtitleColor, EnumChatFormatting rarityColor) {
         this.displayName = displayName;
         this.subtitleColor = subtitleColor;
         this.rarityColor = rarityColor;
 
-        this.backResource = RewardClaim.getGuiTexture("card", "back", (name().equals("ERROR") ? "error" : "common") + ".png");
         this.frontResource = RewardClaim.getGuiTexture("card", "front", name().toLowerCase() + ".png");
-        this.soundResource = RewardClaim.getSound("card", "turn", name().toLowerCase());
     }
 
     public static CardRarity fromName(String name) {

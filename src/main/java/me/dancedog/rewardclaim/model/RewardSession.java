@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import me.dancedog.rewardclaim.RewardClaim;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -136,7 +135,6 @@ public class RewardSession {
                 }
 
                 RewardClaim.getLogger().info("Successfully claimed reward");
-                Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.create(RewardClaim.getSound("reward")));
             }
         });
     }
